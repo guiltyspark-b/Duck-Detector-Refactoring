@@ -19,7 +19,6 @@ package com.eltavine.duckdetector.features.bootloader.data.widevine
 
 import android.media.MediaDrm
 import android.media.MediaDrm.MediaDrmStateException
-import android.media.MediaDrm.SessionException
 import android.media.NotProvisionedException
 import android.media.ResourceBusyException
 import android.media.UnsupportedSchemeException
@@ -249,7 +248,10 @@ internal class WidevineCredentialProbe(
         throwable: Exception,
     ): WidevineDrmError {
         val stateException = throwable as? MediaDrmStateException
-        val sessionException = throwable as? SessionException
+        // MediaDrm.SessionException was added in API 29. Do not resolve its
+        // class on Android 9; class-name matching is sufficient for error classification.
+        val sessionException = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            throwable.javaClass.name == "android.media.MediaDrm\$SessionException"
         val numericMetadata = try {
             errorMetadataReader.read(throwable)
         } catch (_: Exception) {

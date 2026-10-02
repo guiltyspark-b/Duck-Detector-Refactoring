@@ -19,7 +19,6 @@ package com.eltavine.duckdetector.features.bootloader.data.widevine
 
 import android.media.MediaDrm
 import android.media.MediaDrm.MediaDrmStateException
-import android.media.MediaDrm.SessionException
 import android.media.MediaDrmThrowable
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -29,7 +28,11 @@ internal object AndroidWidevineDrmErrorMetadataReader : WidevineDrmErrorMetadata
 
     override fun read(throwable: Exception): WidevineDrmErrorMetadata {
         val stateException = throwable as? MediaDrmStateException
-        val sessionException = throwable as? SessionException
+        val sessionException = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Api29.read(throwable)
+        } else {
+            null
+        }
         val api34Metadata = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             Api34.read(throwable)
         } else {
@@ -38,14 +41,14 @@ internal object AndroidWidevineDrmErrorMetadataReader : WidevineDrmErrorMetadata
         return api34Metadata.copy(
             errorCode = when {
                 stateException != null -> stateException.sanitizedErrorCode()
-                sessionException != null -> sessionException.sanitizedErrorCode()
+                sessionException != null -> sessionException.errorCode
                 else -> null
             },
             transient = when {
                 stateException != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                     stateException.isTransient
 
-                sessionException != null -> sessionException.isTransientCompat()
+                sessionException != null -> sessionException.transient
                 else -> null
             },
         )
@@ -60,17 +63,27 @@ internal object AndroidWidevineDrmErrorMetadataReader : WidevineDrmErrorMetadata
         return if (match.groupValues[1].isNotEmpty()) -magnitude else magnitude
     }
 
-    @Suppress("DEPRECATION")
-    private fun SessionException.sanitizedErrorCode(): Int = errorCode
-
-    @Suppress("DEPRECATION")
-    private fun SessionException.isTransientCompat(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            isTransient
-        } else {
-            errorCode == SessionException.ERROR_RESOURCE_CONTENTION
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private object Api29 {
+        fun read(throwable: Throwable): SessionMetadata? {
+            val sessionException = throwable as? android.media.MediaDrm.SessionException
+                ?: return null
+            @Suppress("DEPRECATION")
+            val errorCode = sessionException.errorCode
+            val transient = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                sessionException.isTransient
+            } else {
+                @Suppress("DEPRECATION")
+                errorCode == android.media.MediaDrm.SessionException.ERROR_RESOURCE_CONTENTION
+            }
+            return SessionMetadata(errorCode = errorCode, transient = transient)
         }
     }
+
+    private data class SessionMetadata(
+        val errorCode: Int,
+        val transient: Boolean,
+    )
 
     private val LEGACY_DIAGNOSTIC_ERROR = Regex("error_(neg_)?(\\d+)")
 

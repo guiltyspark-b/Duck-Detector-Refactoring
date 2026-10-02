@@ -61,7 +61,6 @@ internal data class BootloaderPropertyContext(
             ).firstOrNull { it.isNullOrBlank().not() }
             val knoxState = readsByProperty[BootloaderCatalog.KNOX_STATE]?.preferredValue
             val verityMode = readsByProperty[BootloaderCatalog.VERITYMODE]?.preferredValue
-            val vbmetaDigest = readsByProperty[BootloaderCatalog.VBMETA_DIGEST]?.preferredValue.orEmpty()
             val verifiedBoot =
                 readsByProperty[BootloaderCatalog.VERIFIED_BOOT_STATE]?.preferredValue.orEmpty()
 
@@ -97,7 +96,6 @@ internal data class BootloaderPropertyContext(
                 bootState == PropertyBootState.ORANGE || bootState == PropertyBootState.RED -> true
                 warrantyVoid -> true
                 verityMode.equals("disabled", ignoreCase = true) || verityMode == "0" -> true
-                emptyInputDigestAlgorithm(vbmetaDigest) != null -> true
                 else -> false
             }
             val hasWarningProperty = when {

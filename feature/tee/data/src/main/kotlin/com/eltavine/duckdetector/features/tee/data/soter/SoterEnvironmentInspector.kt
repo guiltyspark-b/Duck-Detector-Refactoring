@@ -59,6 +59,12 @@ internal class AndroidSoterEnvironmentInspector(
 
     @Suppress("DEPRECATION")
     private fun isBiometricAuthenticationAvailable(): Boolean {
+        // android.hardware.biometrics.BiometricManager was added in API 29.
+        // Keep the class literal behind this SDK check so Android 9 never tries
+        // to resolve the API 29 class.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return false
+        }
         val biometricManager = appContext.getSystemService(BiometricManager::class.java) ?: return false
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)
