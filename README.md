@@ -78,7 +78,7 @@ Supporting modules provide the dashboard, device information, settings, update c
 
 | Area | Details |
 | :--- | :--- |
-| **Android** | Android 10 or later (`minSdk 29`); compiled and targeted against Android API 37. |
+| **Android** | Android 9 or later (`minSdk 28`); compiled and targeted against Android API 37. |
 | **ABIs** | Native syscall paths are provided for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`. Some timing and virtualization trap probes are available only on `arm64-v8a`. |
 | **Privileges** | Root access is not required. Android permissions and platform visibility rules still limit what the app can observe. |
 | **Device variance** | OEM changes, kernel configuration, Android version, and sandbox policy may cause a probe to be unsupported, unavailable, or lower-confidence. |
