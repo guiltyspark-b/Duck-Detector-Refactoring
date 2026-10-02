@@ -54,14 +54,23 @@ constexpr uint32_t kCollectTransaction = 1;
 constexpr const char *kDescriptor =
         "com.eltavine.duckdetector.features.mount.zygotenext";
 
-#if __ANDROID_API__ >= 29
-using BinderClassDefine = decltype(&AIBinder_Class_define);
-#else
-using BinderClassDefine = void*;
-#endif
+
 using BinderNew = decltype(&AIBinder_new);
 using ParcelWriteInt32 = decltype(&AParcel_writeInt32);
 using ParcelWriteString = decltype(&AParcel_writeString);
+
+#if __ANDROID_API__ >= 29
+using BinderClassDefine = decltype(&AIBinder_Class_define);
+using BinderNew = decltype(&AIBinder_new);
+using ParcelWriteInt32 = decltype(&AParcel_writeInt32);
+using ParcelWriteString = decltype(&AParcel_writeString);
+#else
+struct AIBinder_Class;
+using BinderClassDefine = void*;
+using BinderNew = void*;
+using ParcelWriteInt32 = void*;
+using ParcelWriteString = void*;
+#endif
 
 BinderClassDefine g_class_define = nullptr;
 BinderNew g_binder_new = nullptr;
