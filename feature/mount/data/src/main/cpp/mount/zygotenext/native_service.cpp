@@ -44,10 +44,17 @@ constexpr uint32_t kCollectTransaction = 1;
 constexpr const char *kDescriptor =
         "com.eltavine.duckdetector.features.mount.zygotenext";
 
-using BinderClassDefine = decltype(&AIBinder_Class_define);
-using BinderNew = decltype(&AIBinder_new);
-using ParcelWriteInt32 = decltype(&AParcel_writeInt32);
-using ParcelWriteString = decltype(&AParcel_writeString);
+// These NDK Binder/Parcel APIs were introduced in Android 29.
+// Keep their function-pointer signatures local so the source can compile
+// against an API-28 NDK. They are resolved dynamically with dlsym() below
+// and are only usable when the symbols exist (Android 29+).
+using BinderClassDefine = AIBinder_Class *(*)(const char *,
+                                                    AIBinder_Class_onCreate,
+                                                    AIBinder_Class_onDestroy,
+                                                    AIBinder_Class_onTransact);
+using BinderNew = AIBinder *(*)(const AIBinder_Class *, void *);
+using ParcelWriteInt32 = binder_status_t (*)(AParcel *, int32_t);
+using ParcelWriteString = binder_status_t (*)(AParcel *, const char *, int32_t);
 
 BinderClassDefine g_class_define = nullptr;
 BinderNew g_binder_new = nullptr;

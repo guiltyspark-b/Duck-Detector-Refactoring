@@ -124,7 +124,7 @@ jobs:
 
       - name: Set up Android build toolchain
         id: toolchain
-        uses: $/.github/actions/setup-android-build
+        uses: ./.github/actions/setup-android-build
         with:
           # Tag builds restore the cache but do not write it back: GitHub scopes a cache entry to
           # the ref that created it, so an entry written from refs/tags/v* can never be read by
