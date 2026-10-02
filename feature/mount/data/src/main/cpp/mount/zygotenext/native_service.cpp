@@ -1,3 +1,4 @@
+#include <android/api-level.h>
 /*
  * Copyright 2026 Duck Apps Contributor
  * If you have any questions, suggestions, or other inquiries, please email Eltavine <me@eltavine.com>.
@@ -44,7 +45,9 @@ constexpr uint32_t kCollectTransaction = 1;
 constexpr const char *kDescriptor =
         "com.eltavine.duckdetector.features.mount.zygotenext";
 
+#if __ANDROID_API__ >= 29
 using BinderClassDefine = decltype(&AIBinder_Class_define);
+#endif
 using BinderNew = decltype(&AIBinder_new);
 using ParcelWriteInt32 = decltype(&AParcel_writeInt32);
 using ParcelWriteString = decltype(&AParcel_writeString);
