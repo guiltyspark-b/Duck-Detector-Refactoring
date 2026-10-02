@@ -17,6 +17,13 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
 
+      - name: Inspect build outputs
+        run: |
+          echo "=== APK files ==="
+          find . -type f -name "*.apk" -print
+          echo "=== app/build ==="
+          find app/build -maxdepth 5 -type f -print 2>/dev/null || true
+
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
