@@ -1,20 +1,10 @@
 #include <android/api-level.h>
 
 #if __ANDROID_API__ < 29
-// Fallback stubs for Android 9 (API 28) build targets
-using BinderClassDefine = void*;
-using AIBinder_Class = void*;
-using AIBinder = void*;
-using AParcel = void*;
-using binder_status_t = int;
 
 #ifndef STATUS_OK
-#define STATUS_OK 0
 #endif
 
-#define AIBinder_Class_define(...) nullptr
-#define AParcel_writeString(...) 0
-#define AParcel_readString(...) 0
 #endif
 
 #include <android/api-level.h>
@@ -64,7 +54,11 @@ constexpr uint32_t kCollectTransaction = 1;
 constexpr const char *kDescriptor =
         "com.eltavine.duckdetector.features.mount.zygotenext";
 
+#if __ANDROID_API__ >= 29
 using BinderClassDefine = decltype(&AIBinder_Class_define);
+#else
+using BinderClassDefine = void*;
+#endif
 using BinderNew = decltype(&AIBinder_new);
 using ParcelWriteInt32 = decltype(&AParcel_writeInt32);
 using ParcelWriteString = decltype(&AParcel_writeString);
